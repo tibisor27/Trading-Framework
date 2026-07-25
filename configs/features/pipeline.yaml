@@ -1,0 +1,32 @@
+# Configuration for Feature Registry pattern
+
+temporal:
+  - name: "time_features"
+
+technical:
+  - name: "sma"
+    periods: [20, 50, 200]
+    
+  - name: "ema"
+    periods: [9, 21, 55]
+    
+  - name: "rsi"
+    periods: [14]
+    
+  - name: "macd"
+    fasts: [12]
+    slows: [26]
+    signals: [9]
+    
+  - name: "bollinger_bands"
+    periods: [20]
+    std_devs: [2.0]
+    
+  - name: "stochastic"
+    k_periods: [14]
+    d_periods: [3]
+    
+  - name: "atr"
+    periods: [14]
+    
+  - name: "obv"
