@@ -1,4 +1,4 @@
-# Configuration for EURUSD 5 Minute Dataset
+# Configuration for EURUSD 1 Minute Dataset
 raw_file: "raw/EURUSD_1m_dukascopy.csv"
 pair: "EURUSD"
 interim_file: "data/interim/eurusd_1m_clean.parquet"
