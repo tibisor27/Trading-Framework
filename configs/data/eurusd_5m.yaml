@@ -1,0 +1,21 @@
+# Configuration for EURUSD 5 Minute Dataset
+raw_file: "raw/EURUSD_1m_dukascopy.csv"
+pair: "EURUSD"
+interim_file: "data/interim/eurusd_1m_clean.parquet"
+features_file: "data/interim/eurusd_1m_with_features.parquet"
+processed_file: "data/processed/model_ready.parquet"
+
+# Pipeline Parameters
+timeframe: "1min"
+timestamp_col: "timestamp"
+tz_source: "UTC"
+tz_target: "America/New_York"
+required_columns: 
+  - "open"
+  - "high"
+  - "low"
+  - "close"
+
+# Business Rules
+drop_zero_volume: true
+fill_missing_timestamps: false
