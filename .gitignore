@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Data files (ignore all data to keep repo size small)
+data/raw/*
+data/interim/*
+data/processed/*
+*.parquet
+*.csv
+
+# Results & Logs
+results/
+*.log
+grid_results.csv
+img/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# IDE / OS files
+.DS_Store
+.idea/
+.vscode/
+
+scripts/
+architecture_documentation.md
+grid_results
