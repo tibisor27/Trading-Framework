@@ -1,0 +1,11 @@
+type: "triple_barrier"
+tp_pips: 0
+sl_pips: 0
+horizon: 120
+pip_size: 0.0001
+# spread_pips: 1.5
+
+use_atr: true
+atr_col: "atr_14"
+atr_tp_multiplier: 2.0
+atr_sl_multiplier: 1.0
