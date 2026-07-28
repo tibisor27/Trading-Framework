@@ -56,7 +56,9 @@ def triple_barrier_target(
 
     trade_target = np.full(len(df), np.nan)
 
-    for i in range(len(df)):
+    valid_end = len(df) - horizon
+
+    for i in range(valid_end):
         if direction[i] == 0:
             continue
 
@@ -78,7 +80,7 @@ def triple_barrier_target(
         else:
             continue
 
-        end_idx = min(i + horizon, len(df) - 1)
+        end_idx = i + horizon
 
         label = 0
 
