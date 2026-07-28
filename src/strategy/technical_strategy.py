@@ -1,20 +1,15 @@
 import pandas as pd
 
-def mean_reversion(df: pd.DataFrame, strategy_config: dict) -> pd.Series:
+def mean_reversion(df: pd.DataFrame, friday_cutoff_hour: int, 
+    rsi_period: int, bb_period: int, bb_std: float, 
+    rsi_oversold: int, rsi_overbought: int) -> pd.Series:
     
-    friday_cutoff_hour = strategy_config['friday_cutoff_hour']
     
-    rsi_period = strategy_config['rsi_period']
     rsi_col = f"rsi_{rsi_period}"
     
-    bb_period = strategy_config['bb_period']
-    bb_std = strategy_config['bb_std']
     bb_lower_col = f"bb_lower_{bb_period}_{bb_std}"
     bb_upper_col = f"bb_upper_{bb_period}_{bb_std}"
     
-    rsi_oversold = strategy_config['rsi_oversold']
-    rsi_overbought = strategy_config['rsi_overbought']
-
     # DATA CONTRACT VALIDATION - checking if the required columns exist in the dataframe
     required_cols = [rsi_col, bb_lower_col, bb_upper_col, "close"]
     missing_cols = [col for col in required_cols if col not in df.columns]
@@ -38,7 +33,7 @@ def mean_reversion(df: pd.DataFrame, strategy_config: dict) -> pd.Series:
     )
 
     # Creăm o serie plină cu 0 (No Trade)
-    signals = pd.Series(0, index=df.index, dtype=int)
+    signals = pd.Series(0, index=df.index, dtype=int, name = "signal")
     
     # Aplicăm semnalele
     signals.loc[long_setup] = 1
