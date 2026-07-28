@@ -26,4 +26,4 @@ def build_strategy(df: pd.DataFrame, strategy_config: dict) -> pd.Series:
     
     strategy = STRATEGY_REGISTRY[name_strategy]
     logger.info(f"Loading strategy: {strategy}, type: {strategy.__name__} with parameters: {strategy_config}")
-    return strategy(df, strategy_config)
+    return strategy(df, **strategy_config)
