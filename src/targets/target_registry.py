@@ -18,12 +18,13 @@ def build_target(df: pd.DataFrame, target_config: dict) -> pd.Series:
     if "signal" not in df.columns:
         raise ValueError("Schema Contract violated! DataFrame is missing 'signal' column!")
     
-    name_target = target_config.pop("type")
+    local_config = target_config.copy()
+    name_target = local_config.pop("type")
 
     if name_target not in LABELER_REGISTRY:
         raise ValueError(f"Labeler-ul '{name_target}' nu există! Opțiuni: {list(LABELER_REGISTRY.keys())}")
     
     labeler = LABELER_REGISTRY[name_target]
     logger.info(f"Loading labeler: {labeler.__name__}")
-    trade_target = labeler(df, **target_config)
+    trade_target = labeler(df, **local_config)
     return pd.Series(trade_target, index=df.index, name="target_y")
