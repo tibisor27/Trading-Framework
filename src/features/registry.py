@@ -26,7 +26,7 @@ FEATURE_REGISTRY = {
     "volume_sma": calc_volume_sma
 }
 
-def build_all_features(df: pd.DataFrame, feature_config: dict) -> pd.DataFrame:
+def build_all_features(df: pd.DataFrame, feature_config: dict) -> tuple[pd.DataFrame, list[str]]:
 
     if not isinstance(df.index, pd.DatetimeIndex):
         raise TypeError(f"Schema Contract violated! Expected DatetimeIndex, but got {type(df.index)}")
@@ -59,13 +59,17 @@ def build_all_features(df: pd.DataFrame, feature_config: dict) -> pd.DataFrame:
             if name not in FEATURE_REGISTRY:
                 logger.warning(f"Warning: Indicator '{name}' not found in Feature Registry. Skipping!")
                 continue
-                
+
+            #it takes the function from the dictionary  
             func = FEATURE_REGISTRY[name]
+
+            #**params unpacks the parameters in the dictionary
             result_dict = func(df, **params)
             all_new_series_dict.update(result_dict)
             
     if all_new_series_dict:
         new_features_df = pd.DataFrame(all_new_series_dict, index=df.index)
+
         # Concatenate 1 single time, all the series features (good performance)
         # axis = 1 -> concatenate along columns (axis = 0 -> concatenate along rows)
         df = pd.concat([df, new_features_df], axis=1)
@@ -75,7 +79,9 @@ def build_all_features(df: pd.DataFrame, feature_config: dict) -> pd.DataFrame:
         initial_rows = len(df)
         df = df.dropna(subset=new_features_df.columns)
         logger.info(f"Dropped {initial_rows - len(df)} warm-up rows.")
+
+        feature_names = list(new_features_df.columns)
         
-        return df
+        return df, feature_names
         
-    return df
+    return df, []
