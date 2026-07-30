@@ -1,9 +1,8 @@
 import logging
 import pandas as pd
-from src.data.config import DataConfig
+from src.config import DataConfig
 
 logger = logging.getLogger(__name__)
-
 
 
 def clean_data(df: pd.DataFrame, cfg: DataConfig) -> pd.DataFrame:

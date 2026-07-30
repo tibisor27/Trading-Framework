@@ -1,6 +1,6 @@
 from pathlib import Path
 import logging
-from src.data.config import DataConfig
+from src.config import DataConfig
 import pandas as pd
 
 logger = logging.getLogger(__name__)
