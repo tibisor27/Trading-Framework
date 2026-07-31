@@ -30,6 +30,17 @@ class PipelineConfig:
 
 
 
+@dataclass(frozen=True)
+class DataSplit:
+    X_train: pd.DataFrame
+    y_train: pd.Series
+    X_val: pd.DataFrame
+    y_val: pd.Series
+    X_test: pd.DataFrame
+    y_test: pd.Series
+    feature_names: tuple[str, ...]
+
+
 def _find_configs_dir() -> Path:
 
     project_root = Path(__file__).parent.parent
