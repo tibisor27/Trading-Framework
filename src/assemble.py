@@ -1,7 +1,7 @@
 import pandas as pd
 import logging
 
-from src.schemas import Dataset
+from src.contracts import Dataset
 
 logger = logging.getLogger(__name__)
     
@@ -54,6 +54,5 @@ def assemble(X: pd.DataFrame,
     return Dataset(
         X=X_ml,
         y=y_ml,
-        feature_names=tuple(X_ml.columns.tolist()),
-        target_name=y.name,
+        feature_names=tuple(X_ml.columns.tolist())
     )
