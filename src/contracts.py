@@ -6,5 +6,3 @@ class Dataset:
     X: pd.DataFrame
     y: pd.Series
     feature_names: tuple[str, ...]
-    target_name: str
-
