@@ -14,9 +14,14 @@ def chronological_fixed_split(dataset: Dataset, train_end: str, validation_end: 
     Contract In:  Dataset (from Data Engineering Pipeline)
     Contract Out: DataSplit (for Trainer)
     """
+    X = dataset.X
+    y = dataset.y
 
     train_end_raw = pd.Timestamp(train_end)
     val_end_raw = pd.Timestamp(validation_end)
+
+    train_end_raw = train_end_raw.tz_localize(X.index.tz)
+    val_end_raw = val_end_raw.tz_localize(X.index.tz)
     
     train_end_purging = train_end_raw - pd.Timedelta(minutes=purging)
     val_end_purging = val_end_raw - pd.Timedelta(minutes=purging)
@@ -25,9 +30,6 @@ def chronological_fixed_split(dataset: Dataset, train_end: str, validation_end: 
         raise ValueError(
             f"train_end ({train_end_purging}) must be before validation_end ({val_end_purging})!"
         )
-
-    X = dataset.X
-    y = dataset.y
 
     # CHRONOLOGICAL SPLIT (using .loc on DatetimeIndex)
     X_train = X.loc[X.index <= train_end_purging]
