@@ -7,7 +7,7 @@ from src.config import DataSplit
 logger = logging.getLogger(__name__)
 
 
-def chronological_fixed_split(dataset: Dataset, train_end: str, validation_end: str) -> DataSplit:
+def chronological_fixed_split(dataset: Dataset, train_end: str, validation_end: str, purging: int) -> DataSplit:
     """
     Chronological split for time series data.
 
@@ -15,26 +15,29 @@ def chronological_fixed_split(dataset: Dataset, train_end: str, validation_end: 
     Contract Out: DataSplit (for Trainer)
     """
 
-    train_end = pd.Timestamp(train_end)
-    val_end = pd.Timestamp(validation_end)
+    train_end_raw = pd.Timestamp(train_end)
+    val_end_raw = pd.Timestamp(validation_end)
+    
+    train_end_purging = train_end_raw - pd.Timedelta(minutes=purging)
+    val_end_purging = val_end_raw - pd.Timedelta(minutes=purging)
 
-    if train_end >= val_end:
+    if train_end_purging >= val_end_purging:
         raise ValueError(
-            f"train_end ({train_end}) must be before validation_end ({val_end})!"
+            f"train_end ({train_end_purging}) must be before validation_end ({val_end_purging})!"
         )
 
     X = dataset.X
     y = dataset.y
 
     # CHRONOLOGICAL SPLIT (using .loc on DatetimeIndex)
-    X_train = X.loc[X.index <= train_end]
-    y_train = y.loc[y.index <= train_end]
+    X_train = X.loc[X.index <= train_end_purging]
+    y_train = y.loc[y.index <= train_end_purging]
 
-    X_val = X.loc[(X.index > train_end) & (X.index <= val_end)]
-    y_val = y.loc[(y.index > train_end) & (y.index <= val_end)]
+    X_val = X.loc[(X.index > train_end_raw) & (X.index <= val_end_purging)]
+    y_val = y.loc[(y.index > train_end_raw) & (y.index <= val_end_purging)]
 
-    X_test = X.loc[X.index > val_end]
-    y_test = y.loc[y.index > val_end]
+    X_test = X.loc[X.index > val_end_raw]
+    y_test = y.loc[y.index > val_end_raw]
 
     logger.info(
         f"Chronological fixed split complete:\n"
