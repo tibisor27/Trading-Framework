@@ -52,6 +52,3 @@ def chronological_fixed_split(dataset: Dataset, train_end: str, validation_end: 
         y_test=y_test,
         feature_names=dataset.feature_names,
     )
-
-
-def walk_forwald_split(dataset: Dataset)
