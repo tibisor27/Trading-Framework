@@ -47,12 +47,4 @@ def walk_forward_split(dataset: Dataset, purging: int, n_folds: int) -> list[Dat
         
         
 
-    return DataSplit(
-        X_train=X_train,
-        y_train=y_train,
-        X_val=X_val,
-        y_val=y_val,
-        X_test=X_test,
-        y_test=y_test,
-        feature_names=dataset.feature_names,
-    )
+    return folds
