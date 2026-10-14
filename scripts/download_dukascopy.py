@@ -31,6 +31,8 @@ BASE = "https://datafeed.dukascopy.com/datafeed/{inst}/{y}/{m:02d}/{d:02d}/BID_c
 DECIMALS = {"USATECHIDXUSD": 3, "USA500IDXUSD": 3, "XAUUSD": 3, "EURUSD": 5, "GBPUSD": 5, "USDJPY": 3}
 
 
+#this fucntion get the data from dukascopy broker(as bytes), stores it into cache folder, and decompresses it into a pandas dataframe
+
 def fetch_day(inst: str, day: date, cache: Path, session: requests.Session, retries: int = 3) -> pd.DataFrame | None:
     f = cache / f"{day.isoformat()}.bi5"
     if not f.exists():
@@ -52,6 +54,8 @@ def fetch_day(inst: str, day: date, cache: Path, session: requests.Session, retr
     raw = f.read_bytes()
     if not raw:
         return None
+
+    #decompress the raw bytes payload from cache folder and transform it into a dataframe
     data = lzma.decompress(raw)
     n = len(data) // 24
     rows = struct.iter_unpack(">5if", data[: n * 24])
