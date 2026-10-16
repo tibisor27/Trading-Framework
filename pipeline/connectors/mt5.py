@@ -4,8 +4,10 @@ MetaTrader 5 terminal (FTMO). Windows only. MT5 cannot give "the bars of 10 Sept
 """
 from __future__ import annotations
 
+import logging
 import pandas as pd
 
+log = logging.getLogger("data_pipeline.connector.mt5")
 
 def fetch(inst: str, server_tz: str, count: int = 3 * 1440):
     """The array copy_rates_from_pos returns, unchanged: `time` is still the SERVER clock."""

@@ -1,9 +1,11 @@
 """Dukascopy datafeed: one compressed file per instrument and UTC day, public, no key."""
 from __future__ import annotations
 
+import logging
 import time
 from datetime import date, datetime, timedelta, timezone
 
+log = logging.getLogger("data_pipeline.connector.dukascopy")
 URL = "https://datafeed.dukascopy.com/datafeed/{inst}/{y}/{m:02d}/{d:02d}/BID_candles_min_1.bi5"
 
 
