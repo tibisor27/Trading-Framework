@@ -9,6 +9,7 @@ The metadata is written here, at ingestion, because this is the only moment it i
 """
 from __future__ import annotations
 
+import logging
 import json
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -20,13 +21,10 @@ BRONZE = ROOT / "data" / "bronze"
 FOLDER = {"dukascopy": "dukascopy/dukascopy_cache", "mt5": "ftmo"}
 LOG_FOLDER = {"dukascopy": "dukascopy", "mt5": "ftmo"}
 
+log = logging.getLogger("data_pipeline.bronze")
 
-def folder(source: str, inst: str) -> Path:
+def _folder(source: str, inst: str) -> Path:
     return BRONZE / FOLDER[source] / inst
-
-
-def dukascopy_file(inst: str, day: date) -> Path:
-    return folder("dukascopy", inst) / f"{day.isoformat()}.bi5"
 
 
 def _log(source: str, inst: str, path: Path, extra: dict) -> None:
@@ -38,17 +36,19 @@ def _log(source: str, inst: str, path: Path, extra: dict) -> None:
         f.write(json.dumps(rec) + "\n")
 
 
-def save_dukascopy(inst: str, day: date, raw: bytes, url: str) -> Path:
-    p = dukascopy_file(inst, day)
+#dukascopy downloads finished days of data (with year-month-day format)
+def save_dukascopy(inst: str, day: date, raw: bytes) -> Path:
+    p = _folder("dukascopy", inst) / f"{day.isoformat()}.bi5"
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_bytes(raw)
-    _log("dukascopy", inst, p, {"day": day.isoformat(), "url": url})
+    _log("dukascopy", inst, p, {"day": day.isoformat()})
     return p
 
 
+#mt5 downloads snapshots/extracts of the current day with the time of download (with year-month-dayTHHMMSSZ format)
 def save_mt5(inst: str, rates, now: datetime | None = None) -> Path:
     now = now or datetime.now(timezone.utc)
-    p = folder("mt5", inst) / f"{now:%Y-%m-%dT%H%M%SZ}.parquet"        # names sort by time
+    p = _folder("mt5", inst) / f"{now:%Y-%m-%dT%H%M%SZ}.parquet"        # names sort by time
     p.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rates).to_parquet(p, index=False)
     _log("mt5", inst, p, {"rows": len(rates)})
@@ -64,6 +64,7 @@ def ingested_at(source: str) -> dict[str, str]:
             try:
                 rec = json.loads(line)
                 out[rec["file"]] = rec["ingested_at"]
+                # log.info(f"[INGESTED] {out}")
             except (ValueError, KeyError):
                 continue          # a half-written last line after a crash must not stop the pipeline
     return out
