@@ -27,13 +27,14 @@ def _folder(source: str, inst: str) -> Path:
     return BRONZE / FOLDER[source] / inst
 
 
-def _log(source: str, inst: str, path: Path, extra: dict) -> None:
-    rec = {"source": source, "instrument": inst, "file": path.relative_to(BRONZE).as_posix(),
+#metadata creation that stores the source, time, size, and additional information about the raw data
+def create_metadata(source: str, inst: str, path: Path, extra: dict) -> None:
+    metadata = {"source": source, "instrument": inst, "file": path.relative_to(BRONZE).as_posix(),
            "ingested_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
            "bytes": path.stat().st_size, **extra}
     log = BRONZE / LOG_FOLDER[source] / "_ingest_log.jsonl"
     with log.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(rec) + "\n")
+        f.write(json.dumps(metadata) + "\n")
 
 
 #dukascopy downloads finished days of data (with year-month-day format)
@@ -41,7 +42,7 @@ def save_dukascopy(inst: str, day: date, raw: bytes) -> Path:
     p = _folder("dukascopy", inst) / f"{day.isoformat()}.bi5"
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_bytes(raw)
-    _log("dukascopy", inst, p, {"day": day.isoformat()})
+    create_metadata("dukascopy", inst, p, {"day": day.isoformat()})
     return p
 
 
@@ -51,10 +52,27 @@ def save_mt5(inst: str, rates, now: datetime | None = None) -> Path:
     p = _folder("mt5", inst) / f"{now:%Y-%m-%dT%H%M%SZ}.parquet"        # names sort by time
     p.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rates).to_parquet(p, index=False)
-    _log("mt5", inst, p, {"rows": len(rates)})
+    create_metadata("mt5", inst, p, {"rows": len(rates)})
     return p
 
 
+#idempotency for dukascopy function - it checks if the files already exsit and is valid (size > 0) in the bronze layer for a specific day
+def has_day(inst: str, day: date) -> bool:
+    """Does Bronze already hold valid (non-empty) data for this calendar day?"""
+    p = _folder("dukascopy", inst) / f"{day.isoformat()}.bi5"
+    return p.exists() and p.stat().st_size > 0
+
+
+#list the files that exist in the bronze layer for a specific instrument and source
+def list_raw_files(source: str, inst: str) -> list[Path]:
+    """All valid raw files for an instrument, sorted chronologically.
+    """
+    pattern = "*.bi5" if source == "dukascopy" else "*.parquet"
+    return [f for f in sorted(_folder(source, inst).glob(pattern))
+            if f.stat().st_size > 0]
+
+
+#helper function that gets the ingest time of the files from the metadata log file
 def ingested_at(source: str) -> dict[str, str]:
     """file -> when it was ingested, from the log. Files saved before the log existed are missing."""
     log = BRONZE / LOG_FOLDER[source] / "_ingest_log.jsonl"
