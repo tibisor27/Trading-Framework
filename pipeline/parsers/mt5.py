@@ -1,8 +1,10 @@
 """MT5 extractions -> bars in UTC (parse), then the two MT5-specific fixes (clean)."""
 from __future__ import annotations
 
+import logging
 import pandas as pd
 
+log = logging.getLogger('data_pipeline.parser.mt5')
 
 def server_to_utc(time_s, server_tz: str) -> pd.DatetimeIndex:
     """

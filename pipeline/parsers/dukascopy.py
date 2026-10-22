@@ -5,16 +5,19 @@ Times are already UTC.
 """
 from __future__ import annotations
 
+import logging
 import lzma
 from datetime import date
 
 import numpy as np
 import pandas as pd
 
+log = logging.getLogger('data_pipeline.parser.dukascopy')
 RECORD = np.dtype([("t", ">i4"), ("o", ">i4"), ("c", ">i4"), ("l", ">i4"), ("h", ">i4"), ("v", ">f4")])
 
 
 def parse(raw: bytes, day: date, decimals: int) -> pd.DataFrame:
+    log.debug("Parsing %d bytes for %s, %s", len(raw), day, "empty" if raw is None else f"{len(raw)/1024:.1f} KiB raw")
     data = lzma.decompress(raw) if raw else b""
     a = np.frombuffer(data[: len(data) // RECORD.itemsize * RECORD.itemsize], dtype=RECORD)
     scale = 10.0 ** decimals
