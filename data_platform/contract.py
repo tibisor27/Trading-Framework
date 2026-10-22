@@ -21,6 +21,7 @@ import pandas as pd
 RowCheck = Callable[[pd.DataFrame], pd.Series]
 
 
+
 @dataclass(frozen=True)
 class Column:
     name: str
