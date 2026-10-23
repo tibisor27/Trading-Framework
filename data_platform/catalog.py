@@ -74,6 +74,11 @@ def ingested_at(source: str) -> dict[str, str]:
     return out
 
 
+#transform the absolute path to a relative path in the catalog.py file (data/bronze/source/instrument/file.ext)
+#this is used in the lineage to track the files
+#also handle the mac -> windows path conversion
+#e.g: FROM /Users/tybyboiciuc/Downloads/trading_framework/data/bronze/dukascopy/US100/2026-10-23.bi5
+#.    TO  dukascopy/US100/2026-10-23.bi5
 def bronze_name(path: Path) -> str:
     return path.relative_to(BRONZE).as_posix()
 
