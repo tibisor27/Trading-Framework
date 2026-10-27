@@ -60,7 +60,7 @@ def _covers(inst: str) -> list[tuple[Path, date, date]]:
     return [(p, *_span(p, p.stat().st_mtime, tz)) for p in _snapshots(inst)]
 
 
-def days(inst: str) -> list[date]:
+def available_days(inst: str) -> list[date]:
     out = set()
     for _, lo, hi in _covers(inst):
         d = lo
@@ -70,12 +70,12 @@ def days(inst: str) -> list[date]:
     return sorted(out)
 
 
-def inputs(inst: str, day: date) -> list[Path]:
+def bronze_files(inst: str, day: date) -> list[Path]:
     return [p for p, lo, hi in _covers(inst) if lo <= day <= hi]
 
 
-def bars(inst: str, day: date) -> pd.DataFrame:
+def load_bars(inst: str, day: date) -> pd.DataFrame:
     tz = catalog.instrument(inst)["server_tz"]
-    df = clean([parse(pd.read_parquet(p), tz) for p in inputs(inst, day)])
+    df = clean([parse(pd.read_parquet(p), tz) for p in bronze_files(inst, day)])
     start = pd.Timestamp(day, tz="UTC")
     return df[(df.index >= start) & (df.index < start + pd.Timedelta(days=1))]
