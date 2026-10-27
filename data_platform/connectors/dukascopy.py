@@ -1,11 +1,13 @@
 """Dukascopy datafeed -> Bronze. One compressed file per instrument and UTC day, public, no key."""
 from __future__ import annotations
 
+import logging
 import time
 from datetime import date, datetime, timedelta, timezone
 
 from .. import catalog
 
+log = logging.getLogger("data_platform.connector.dukascopy")
 URL = "https://datafeed.dukascopy.com/datafeed/{inst}/{y}/{m:02d}/{d:02d}/BID_candles_min_1.bi5"
 
 
@@ -36,8 +38,9 @@ def fetch(inst: str, day: date, get=_http_get, pause_s: float = 1.5) -> bytes | 
                 return body
             if status in (200, 404):
                 return None
-        except Exception:  # noqa: BLE001 - retried below
-            pass
+        except Exception as e :  # noqa: BLE001 - retried below
+            log.error("Attempt %d for %s failed: %s", attempt + 1, u, e)
+
         time.sleep(pause_s * (attempt + 1))
     raise ConnectionError(f"could not download {u}")
 
