@@ -34,15 +34,25 @@ def fetch(inst: str, day: date, get=_http_get, pause_s: float = 1.5) -> bytes | 
     for attempt in range(3):
         try:
             status, body = get(u)
+        except OSError as e:
+            cause = f'{type(e).__name__}: {e}'
+        else:
             if status == 200 and body:
+                log.debug("%s %s: saved, %d bytes", inst, day, len(body))
                 return body
-            if status in (200, 404):
+            if status == 200:
+                log.info("%s %s: empty (HTTP 200, 0 bytes)", inst, day)
                 return None
-        except Exception as e :  # noqa: BLE001 - retried below
-            log.error("Attempt %d for %s failed: %s", attempt + 1, u, e)
+            if status == 404:
+                log.info("%s %s: absent (HTTP 404)", inst, day)
+                return None
+            cause = f'HTTP {status}'
 
-        time.sleep(pause_s * (attempt + 1))
-    raise ConnectionError(f"could not download {u}")
+        if attempt < 3:
+            log.warning("%s %s: attempt %d/%d failed (%s), retrying", inst, day, attempt + 1, 3, cause)
+            time.sleep(pause_s * attempt)
+    log.error("%s %s: giving up after 3 attempts, last cause: %s", inst, day, cause)
+    raise ConnectionError(f"{cause} ({u})")
 
 
 def run(inst: str, start: date | None = None, end: date | None = None, fetch=fetch) -> list[str]:
@@ -64,7 +74,7 @@ def run(inst: str, start: date | None = None, end: date | None = None, fetch=fet
                 if raw:
                     f.parent.mkdir(parents=True, exist_ok=True)
                     f.write_bytes(raw)
-                    catalog.bronze_metadata("dukascopy", inst, f, day=day.isoformat())
+                    catalog.bronze_metadata("dukascopy", inst, f, day=day.isoformat(), url = url(inst, day))
                     saved += 1
             except ConnectionError as e:
                 problems.append(f"{day}: {e}")
