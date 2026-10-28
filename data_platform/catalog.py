@@ -29,6 +29,7 @@ INSTRUMENTS = {
     "USA500IDXUSD": {"source": "dukascopy", "symbol": "US500", "decimals": 3},
     "DEUIDXEUR": {"source": "dukascopy", "symbol": "GER40", "decimals": 3},
     "US100.cash": {"source": "mt5", "symbol": "US100", "server_tz": "Europe/Bucharest"},
+    "XAUUSD": {"source": "dukascopy", "symbol": "XAUUSD", "decimals": 3},
 }
 _BRONZE_DIR = {"dukascopy": "dukascopy", "mt5": "ftmo"}
 _LOG_DIR = {"dukascopy": "dukascopy", "mt5": "ftmo"}
