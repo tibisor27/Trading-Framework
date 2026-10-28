@@ -25,13 +25,21 @@ def _http_get(u: str) -> tuple[int, bytes]:
     return r.status_code, r.content
 
 
+
+#Logging: every attempt ends in exactly one line.
+    #DEBUG    saved, with the size
+    #INFO     empty (200, 0 bytes) or absent (404): a legitimate answer, not an error
+    #WARNING  attempt k/ATTEMPTS failed (HTTP status or exception), another one follows
+    #ERROR    giving up: the day is NOT in Bronze; re-run the same command later
+
 def fetch(inst: str, day: date, get=_http_get, pause_s: float = 1.5) -> bytes | None:
     """
     The raw .bi5 bytes for one day, or None if Dukascopy has no file (404).
     Raises after 3 failed attempts, so a network problem is never mistaken for "no data".
     """
+    ATTEMPTS = 3
     u = url(inst, day)
-    for attempt in range(3):
+    for attempt in range(1, ATTEMPTS + 1):
         try:
             status, body = get(u)
         except OSError as e:
@@ -48,10 +56,10 @@ def fetch(inst: str, day: date, get=_http_get, pause_s: float = 1.5) -> bytes | 
                 return None
             cause = f'HTTP {status}'
 
-        if attempt < 3:
-            log.warning("%s %s: attempt %d/%d failed (%s), retrying", inst, day, attempt + 1, 3, cause)
+        if attempt < ATTEMPTS:
+            log.warning("%s %s: attempt %d/%d failed (%s), retrying", inst, day, attempt, ATTEMPTS, cause)
             time.sleep(pause_s * attempt)
-    log.error("%s %s: giving up after 3 attempts, last cause: %s", inst, day, cause)
+    log.error("%s %s: giving up after %d attempts, last cause: %s", inst, day, ATTEMPTS, cause)
     raise ConnectionError(f"{cause} ({u})")
 
 
