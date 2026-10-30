@@ -30,7 +30,10 @@ silver.bars v1
 - `volume` e în unitatea sursei: Dukascopy ≈ 0,08 pe minut, FTMO ≈ 386 de tick-uri pe minut. **Nu se compară între surse.**
 
 ## 3. Acoperirea
-- **dukascopy**: 1.440 de bare pe zi. Când piața e închisă apar bare plate cu volum 0: pauza de seară 20:15–22:00 UTC, sărbătorile, după 13:15 NY în zilele scurte.
+- **dukascopy**: 1.440 de bare pe zi. Când piața e închisă apar bare plate cu volum 0: pauza de seară
+  16:15–18:00 New York la indicii SUA (20:15–22:00 UTC vara, 21:15–23:00 UTC iarna) și 17:00–18:00 New York
+  la XAUUSD, weekendul (vineri seara → duminică 18:00 New York), sărbătorile, după 13:15 NY în zilele scurte.
+
 - **mt5**: doar minutele cu tick-uri. Pauza de seară 20:50–22:05 UTC lipsește (~1.365 de bare pe zi).
 - Fiecare zi văzută de Silver are o intrare în `_status.json`:
   - `ok`: fișierul există și a trecut verificările;
