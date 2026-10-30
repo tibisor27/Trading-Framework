@@ -2,6 +2,10 @@
 Dukascopy staging. A .bi5 file is LZMA-compressed records of 24 bytes, big-endian:
     int32 seconds-from-midnight, int32 open, int32 CLOSE, int32 low, int32 high, float32 volume
 Times are already UTC. No known fixes are needed: a day's file is complete and never revised.
+!! TO BE CONSIDERED!! :
+    minutes without ticks are filled by Dukascopy itselfL 
+    open = high = close = low = the last close, volume 0.
+    Nothing here fills or drops rows; Gold decides what to do with them (volume > 0, session cut).
 """
 from __future__ import annotations
 
